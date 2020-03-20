@@ -38,7 +38,7 @@ webfont('volkswagen_serialregular', 'Volkswagen_Serial-Regular-webfont');
 /* Basic style */
 html, body {
   height: 100%;
-  font-family: "Segoe UI", "Arial", "Helvetica", sans-serif;
+  font-family: "PT Sans", "Segoe UI", "Arial", "Helvetica", sans-serif;
   /* Prevent highlighting/selecting text */
   -webkit-touch-callout: none;
   -webkit-user-select: none;

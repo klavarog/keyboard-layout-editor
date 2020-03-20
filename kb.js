@@ -3,21 +3,6 @@
 (function () {
   "use strict";
 
-  function toJsonPretty(obj) {
-    var res = [];
-    obj.forEach(function(elem,ndx) {
-      // FROG asks: is that so?
-      // We don't want CSS & notes in the Raw Data editor; they have their
-      // own editors, and inclusion in the raw data tab just clutters it up.
-      // Other metadata isn't too bad, but doesn't really offer any benefit.
-      if(ndx > 0 || (elem instanceof Array)) {
-        res.push($serial.toJsonL(elem));
-      }
-    });
-    return res.join(",\n")+"\n";
-  }
-  function fromJsonPretty(json) { return $serial.fromJsonL('['+json+']'); }
-
   // The angular module for our application
   var kbApp = angular.module('kbApp', ["ngSanitize", "ngCookies", "ui.utils", "ui.bootstrap", "ui.bootstrap.tooltip", "ui.ace", "ngFileUpload", "ang-drag-drop", "colorpicker.module"], function($tooltipProvider) {
     // Default tooltip behaviour
@@ -30,7 +15,7 @@
     var customStylesTimer = false;
 
     // The application version
-    $scope.version = "0.15";
+    $scope.version = "0.15frog";
 
     // Github data
     $scope.githubClientId = "aa8e45492d603a1eedcd";
@@ -44,7 +29,6 @@
       return $http({method:method, url:"https://api.github.com"+path, headers:headers, data:data, cache:false});
     }
     $scope.currentGist = null;
-    $scope.isStarred = false;
     function setGist(gist) {
       $scope.currentGist = gist;
       $scope.isStarred = false;
@@ -52,17 +36,8 @@
         github("/gists/"+gist.id+"/star").success(function() { $scope.isStarred = true; });
       }
     }
-    $scope.setGistStar = function(gist, star) {
-      if($scope.user && $scope.user.id && gist && (gist != $scope.currentGist || $scope.isStarred != star)) {
-        github("/gists/"+gist.id+"/star", star ? "PUT" : "DELETE").success(function() {
-          if(gist === $scope.currentGist) {
-            $scope.isStarred = star;
-          }
-        });
-      }
-    }
 
-    // The selected tab; 0 == Properties, 1 == Kbd Properties, 3 == Custom Styles, 2 == Raw Data
+    // The selected tab; 0 == Properties, 1 == Kbd Properties, 3 == Custom Styles ← TODO: check if they really are
     $scope.selTab = 0;
 
     // An array used to keep track of the selected keys
@@ -80,7 +55,11 @@
 
     // The keyboard data
     $scope.keyboard = { keys: [], meta: {} };
-    $scope.keys = function(newKeys) { if(newKeys) { $scope.keyboard.keys = newKeys; } return $scope.keyboard.keys; };
+    // You can pass an arg to add new keys.
+    $scope.keys = (newKeys) => {
+      if (newKeys) { $scope.keyboard.keys = newKeys; }
+      return $scope.keyboard.keys;
+    };
 
     // Custom Styles data
     $scope.customStylesException = "";
@@ -88,15 +67,15 @@
     $scope.customGlyphs = [];
 
     // Helper function to select/deselect all keys
-    $scope.unselectAll = function() {
+    $scope.unselectAll = () => {
       $scope.selectedKeys = [];
       $scope.multi = {};
     };
-    $scope.selectAll = function(event) {
+    $scope.selectAll = (event) => {
       if(event) { event.preventDefault(); event.stopPropagation(); }
       $serial.sortKeys($scope.keys());
       $scope.unselectAll();
-      $scope.keys().forEach(function(key) {
+      $scope.keys().forEach((key) => {
         $scope.selectedKeys.push(key);
       });
       if($scope.keys().length>0) {
@@ -104,7 +83,7 @@
       }
     };
 
-    $scope.save = function(event) {
+    $scope.save = (event) => {
       if (!confirm('WARNING! READ THIS CAREFULLY! Saving your layout on this site kle.klava.org you can CORRUPT YOUR LAYOUT GIST for standard keyboard-layout-editor.com! This site used another stupid serialization algorithm which not supported by keyboard-layout-editor.com. Are you sure to continue?'))
         return;
       if(!$scope.user || !$scope.user.id) {
@@ -274,22 +253,6 @@
       }
     };
 
-    // summary functions cut
-
-    // strip the colour string out of the switch color
-    // todo: handle white or near-white since it will be invisible.
-    $scope.getTextColor = function(butt) {
-      if((butt.substring(0,1) == "~") || (butt.substring(0,1) == "D")) {
-        return "#ffffff"; // leave the decals and totals lines alone
-      }
-      var hex1 = butt;
-      var re = /.*\(/;
-      var hex2 = hex1.replace(re, '');
-      var re = /\).*/;
-      hex1 = hex2.replace(re, '');
-      return hex1;
-    };
-
     $scope.removeLegendsButtons = [
       { label: "All",
         re: /.*/,
@@ -319,16 +282,18 @@
         tooltip: "Remove legends from all the decals." },
     ];
 
-    $scope.removeLegends = function(button) {
-      var keys = $scope.selectedKeys.length > 0 ? $scope.selectedKeys : $scope.keys();
-      transaction("remove-legends", function() {
-        angular.forEach(keys, function(key) {
+    $scope.removeLegends = (button) => {
+      // If there are no selected keys, operate on every key.
+      let keys = $scope.selectedKeys.length > 0
+        ? $scope.selectedKeys : $scope.keys();
+      transaction("remove-legends", () => {
+        angular.forEach(keys, (key) => {
           if(key.decal === (!!button.decals)) {
             for(var i=0; i<12; i++) {
               if(key.labels[i]) {
-                update(key,"labels",key.labels[i].replace(button.re,''),i); // should we wipe the textSize and textColor too?
-                renderKey(key);
+                update(key,"labels",key.labels[i].replace(button.re,''),i);
               }
+              renderKey(key);
             }
           }
         });
@@ -421,20 +386,23 @@
     };
 
     // Helper function to select a single key
-    function selectKey(key,event) {
+    function selectKey(key, event) {
       if(key) {
-        // If SHIFT is held down, we want to *extend* the selection from the last
-        // selected item to the new one.
+        // If SHIFT is held down, we want to *extend* the selection from the
+        // last selected item to the new one.
         if(event.shiftKey && $scope.selectedKeys.length > 0) {
-          // Get the indicies of all the selected keys
-          var currentSel = $scope.selectedKeys.map(function(key) { return $scope.keys().indexOf(key); });
-          currentSel.sort(function(a,b) { return parseInt(a) - parseInt(b); });
+          // Get the indices of all the selected keys
+          let currentSel = $scope.selectedKeys.map((key) =>
+            $scope.keys().indexOf(key)
+          ).sort((a, b) => parseInt(a) - parseInt(b));
+
           var cursor = $scope.keys().indexOf(key);
           var anchor = $scope.keys().indexOf($scope.selectedKeys.last());
           $scope.selectedKeys.pop();
         }
 
-        // If neither CTRL or ALT is held down, clear the existing selection state
+        // If neither CTRL or ALT is held down, clear the existing selection
+        // state. If they are pressed, the selection is appended.
         if(!event.ctrlKey && !event.altKey) {
           $scope.unselectAll();
         }
@@ -479,27 +447,6 @@
     $http.get('layouts.json').success(function(data) {
       $scope.layouts = data.presets;
       $scope.samples = data.samples;
-    });
-
-    // Known backgrounds
-    $scope.backgrounds = {};
-    $http.get('backgrounds.json').success(function(data) {
-      $scope.backgrounds = data;
-    });
-
-    $http.get('switches.json').success(function(data) {
-      $scope.switches = data;
-      $scope.switchNames = {};
-      for(var mountName in $scope.switches) {
-        var mountType = $scope.switches[mountName];
-        for(var brandName in mountType.brands) {
-          var brandType = mountType.brands[brandName];
-          for(var part in brandType.switches) {
-            var switchType = brandType.switches[part];
-            $scope.switchNames[part] = brandType.name + " / " + switchType.name;
-          }
-        }
-      }
     });
 
     // The currently selected palette & character-picker
@@ -584,9 +531,9 @@
 
     function updateSerialized() {
       //$timeout.cancel(serializedTimer); // this is slow, for some reason
+      console.log("updateSerialized was called");
       $scope.deserializeException = "";
       $scope.serializedObjects = $serial.serialize($scope.keyboard);
-      $scope.serialized = toJsonPretty($scope.serializedObjects);
     }
 
     $scope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
@@ -723,9 +670,9 @@
         trans.modified = angular.copy($scope.keyboard);
         trans.open = false;
         redoStack = [];
-        if(type !== 'rawdata') {
+        /*if(type !== 'rawdata') {
           updateSerialized();
-        }
+        }*/
         $scope.dirty = true;
         $scope.saved = false;
         $scope.saveError = "";
