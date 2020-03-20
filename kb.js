@@ -465,12 +465,6 @@
       $scope.samples = data.samples;
     });
 
-    // Known backgrounds
-    $scope.backgrounds = {};
-    $http.get('backgrounds.json').success(function(data) {
-      $scope.backgrounds = data;
-    });
-
     // The currently selected palette & character-picker
     $scope.palette = {};
     $scope.picker = {};
@@ -630,7 +624,7 @@
           "<p>Keyboard-layout-editor.com is a web application that enables the editing of keyboard-layouts, i.e., the position and appearance of each physical key.</p>"+
           "<p>Start by exploring the presets and samples from the menu-bar to give you an idea of the possibilities.  Once you are ready to start designing your own keyboard, just load one of the presets and start customizing it!  Some tips:</p>"+
           "<ul><li>The selected keys can be modified on the <i>Properties</i> tab.</li>"+
-          "<li>The <i>Keyboard Properties</i> tab lets you edit the keyboard background and keyboard metadata.</li>"+
+          "<li>The <i>Keyboard Properties</i> tab lets you edit the keyboard metadata.</li>"+
           "<li>The <i>Custom Styles</i> tab lets you write advanced CSS styling rules.</li>"+
           "<li>Don't forget the <i>Color Swatches</i> and <i>Character Picker</i> menu items!  These give you easy access to colors and symbol characters, respectively.</li>"+
           "<li>There are a lot of available keyboard shortcuts; press '?' or 'F1' to see a list.</li></ul>"+
@@ -843,10 +837,6 @@
         $scope.meta[prop] = valid;
         $scope.updateMeta(prop);
       }
-    };
-    $scope.setBackground = function(bg) {
-      $scope.meta.background = bg;
-      $scope.updateMeta('background');
     };
 
     updateSerialized();

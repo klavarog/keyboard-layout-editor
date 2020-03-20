@@ -52,7 +52,7 @@ All rights reserved.
 <!--***********************************************
 Nav Bar / Header
 ************************************************-->
-<nav class="navbar navbar-inverse navbar-static-top" role="navigation">
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
   <div class="navbar-header">
     <!-- Hamburger menu, when width is too small -->
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
@@ -234,7 +234,7 @@ Nav Bar / Header
      ngf-drop="true" ngf-change="uploadJson($files, $event)" ngf-drag-over-class="drag-over">
 
     <div id='keyboard-bg'
-         ng-attr-style="height:{{kbHeight}}px; width:{{kbWidth}}px; background-color:{{keyboard.meta.backcolor}}; border-radius: {{keyboard.meta.radii || '6px'}}; {{keyboard.meta.background.style}}">
+         ng-attr-style="height:{{kbHeight}}px; width:{{kbWidth}}px; background-color:{{keyboard.meta.backcolor}}; border-radius: '6px';">
       <div ng-repeat="key in keys()"
          class="key {{key.profile}}"
          ng-mouseover="hoveredKey=key"
@@ -571,60 +571,6 @@ Nav Bar / Header
     <div id="kbdproperties" ng-class="{hidden:selTab!=1}">
       <form class="form-horizontal col-sm-12 col-md-12 col-lg-12">
 
-        <!-- Keyboard Background -->
-        <div class="form-group form-group-sm">
-          <label class="control-label col-md-2 col-lg-1 text-nowrap" for="kbdcoloreditor">Case Background:</label>
-          <div class="col-md-10 col-lg-11">
-            <div class="form-inline">
-              <!-- Color -->
-              <kbd-color-picker picker-id="kbdcoloreditor"
-                                ng-model="meta.backcolor"
-                                ng-change="updateMeta('backcolor')"
-                                ng-blur="validateMeta('backcolor')"
-                                hint-text="Specify the background color for the keyboard."></kbd-color-picker>
-
-              <!-- Background image-->
-              <div class="form-group form-group-sm">
-                <div class="input-group input-group-sm hint--top hint--rounded" data-hint="Specify the background texture for the keyboard.">
-                  <div class="btn-group btn-group-sm-form" dropdown>
-                    <button type="button" class="btn btn-default dropdown-toggle" dropdown-toggle>{{meta.background ? meta.background.name : 'No Texture'}} <b class="caret"></b></button>
-                    <ul class="dropdown-menu dropdown-select" role="menu">
-                      <li><a ng-click='setBackground()'>None</a></li>
-                      <li class="divider"></li>
-                      <li ng-repeat="category in backgrounds">
-                        <div class="dropdown-header" ng-attr-style="{{category.style}}">{{category.category}}:</div>
-                        <ul class="menu">
-                          <li ng-repeat="bg in category.content"><a ng-click='setBackground(bg)'>{{bg.name}}</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Corner radii -->
-              <div class="form-group form-group-sm">
-                <label class="control-label text-nowrap" style='margin-left: 5px;' for="kbdradiieditor">Radii:</label>
-
-                <div class="hint--top hint--rounded"
-                     data-hint="Specify the corner radii for this keyboard, in CSS3 format.
-
-                     Some examples:
-                     &nbsp;&bull; 20px  /*all corners rounded equally*/
-                     &nbsp;&bull; 10px 10px 10px 10px /*ditto, but less rounding*/
-                     &nbsp;&bull; 10px 10px 10px 10px / 20px 20px 20px 20px
-                     &nbsp;&bull; 40% / 20px
-                     &nbsp;&bull; 30px 30px / 40%">
-                  <input id="kbdradiieditor" class="form-control input-sm" type='text'
-                         ng-model="meta.radii"
-                         ng-change="updateMeta('radii')"
-                         ng-blur="validateMeta('radii')">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <!-- Keyboard Name -->
         <div class="form-group form-group-sm">
           <label class="control-label col-md-2 col-lg-1 text-nowrap" for="kbdnameeditor">Keyboard Name:</label>
@@ -648,8 +594,6 @@ Nav Bar / Header
                    ng-blur="validateMeta('author')">
           </div>
         </div>
-
-
 
         <!-- Notes -->
         <div class="form-group form-group-sm">
