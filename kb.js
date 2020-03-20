@@ -274,22 +274,6 @@
       }
     };
 
-    // summary functions cut
-
-    // strip the colour string out of the switch color
-    // todo: handle white or near-white since it will be invisible.
-    $scope.getTextColor = function(butt) {
-      if((butt.substring(0,1) == "~") || (butt.substring(0,1) == "D")) {
-        return "#ffffff"; // leave the decals and totals lines alone
-      }
-      var hex1 = butt;
-      var re = /.*\(/;
-      var hex2 = hex1.replace(re, '');
-      var re = /\).*/;
-      hex1 = hex2.replace(re, '');
-      return hex1;
-    };
-
     $scope.removeLegendsButtons = [
       { label: "All",
         re: /.*/,
@@ -485,21 +469,6 @@
     $scope.backgrounds = {};
     $http.get('backgrounds.json').success(function(data) {
       $scope.backgrounds = data;
-    });
-
-    $http.get('switches.json').success(function(data) {
-      $scope.switches = data;
-      $scope.switchNames = {};
-      for(var mountName in $scope.switches) {
-        var mountType = $scope.switches[mountName];
-        for(var brandName in mountType.brands) {
-          var brandType = mountType.brands[brandName];
-          for(var part in brandType.switches) {
-            var switchType = brandType.switches[part];
-            $scope.switchNames[part] = brandType.name + " / " + switchType.name;
-          }
-        }
-      }
     });
 
     // The currently selected palette & character-picker
@@ -811,9 +780,6 @@
         coloredBorder : function() { key[prop] = value; },
         decal : function() { key[prop] = value; key.x2 = key.y2 = 0; key.width2 = key.width; key.height2 = key.height; key.nub = key.stepped = key.ghost = false; },
         rotation_angle : function() { key.rotation_angle = value; key.rotation_x = $scope.multi.rotation_x; key.rotation_y = $scope.multi.rotation_y; },
-        sm : function() { if(value===$scope.meta.switchMount) value=''; if(value != key.sm) { key.sm = value; key.sb = key.st = ''; } },
-        sb : function() { if(value===$scope.meta.switchBrand) value=''; if(value != key.sb) { key.sb = value; key.st = ''; } },
-        st : function() { if(value===$scope.meta.switchType) value=''; if(value != key.st) { key.st = value; } },
       };
       return (u[prop] || u._)();
     }
@@ -866,8 +832,6 @@
       }
       transaction("metadata", function() {
         $scope.keyboard.meta[prop] = value;
-        if(prop==='switchMount') { $scope.keyboard.meta.switchBrand = $scope.keyboard.meta.switchType = ''; }
-        else if(prop==='switchBrand') { $scope.keyboard.meta.switchType = ''; }
       });
       $scope.meta = angular.copy($scope.keyboard.meta);
       $scope.calcKbHeight();
