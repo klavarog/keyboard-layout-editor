@@ -1,3 +1,6 @@
+___Version 0.16:___ Mar 23, 2020
+* Raw data is not updated automatically now because it used to slow down everything.
+
 ___Version 0.15:___ Aug 4, 2015
 * Now using GitHub Gists for storage:
   * In order to save layouts, you now need to sign in to GitHub via OAuth.

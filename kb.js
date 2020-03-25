@@ -1,5 +1,6 @@
 /*jslint bitwise:true, white:true, plusplus:true, vars:true, browser:true, devel:true, regexp:true */
 /*global angular:true, rison:true, $:true */
+var updateSerializedPublic = null;
 (function () {
 	"use strict";
 
@@ -29,7 +30,7 @@
 		var customStylesTimer = false;
 
 		// The application version
-		$scope.version = "0.15";
+		$scope.version = "0.16";
 
 		// Github data
 		$scope.githubClientId = "aa8e45492d603a1eedcd";
@@ -621,11 +622,11 @@
 		};
 
 		function updateSerialized() {
-			//$timeout.cancel(serializedTimer); // this is slow, for some reason
 			$scope.deserializeException = "";
 			$scope.serializedObjects = $serial.serialize($scope.keyboard);
 			$scope.serialized = toJsonPretty($scope.serializedObjects);
 		}
+		updateSerializedPublic = updateSerialized;
 
 		$scope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
 			if($location.path() === '') {
@@ -761,9 +762,6 @@
 				trans.modified = angular.copy($scope.keyboard);
 				trans.open = false;
 				redoStack = [];
-				if(type !== 'rawdata') {
-					updateSerialized();
-				}
 				$scope.dirty = true;
 				$scope.saved = false;
 				$scope.saveError = "";
@@ -772,7 +770,6 @@
 		}
 
 		function refreshAfterUndoRedo(type) {
-			updateSerialized();
 			$scope.keys().forEach(function(key) {
 				renderKey(key);
 			});
