@@ -1,6 +1,6 @@
 /*jslint bitwise:true, white:true, plusplus:true, vars:true, browser:true, devel:true, regexp:true */
 /*global angular:true, rison:true, $:true */
-var kostyl = null;
+var updateSerializedPublic = null;
 (function () {
 	"use strict";
 
@@ -30,7 +30,7 @@ var kostyl = null;
 		var customStylesTimer = false;
 
 		// The application version
-		$scope.version = "0.15+klavarog patches";
+		$scope.version = "0.16";
 
 		// Github data
 		$scope.githubClientId = "aa8e45492d603a1eedcd";
@@ -622,13 +622,11 @@ var kostyl = null;
 		};
 
 		function updateSerialized() {
-			//$timeout.cancel(serializedTimer); // this is slow, for some reason
-                        console.log("updateSerialized was called");
 			$scope.deserializeException = "";
 			$scope.serializedObjects = $serial.serialize($scope.keyboard);
 			$scope.serialized = toJsonPretty($scope.serializedObjects);
 		}
-                kostyl = updateSerialized;
+		updateSerializedPublic = updateSerialized;
 
 		$scope.$on('$locationChangeStart', function(event, newUrl, oldUrl) {
 			if($location.path() === '') {
@@ -764,9 +762,6 @@ var kostyl = null;
 				trans.modified = angular.copy($scope.keyboard);
 				trans.open = false;
 				redoStack = [];
-				//if(type !== 'rawdata') {
-				//	updateSerialized();
-				//}
 				$scope.dirty = true;
 				$scope.saved = false;
 				$scope.saveError = "";
@@ -775,7 +770,6 @@ var kostyl = null;
 		}
 
 		function refreshAfterUndoRedo(type) {
-			//updateSerialized();
 			$scope.keys().forEach(function(key) {
 				renderKey(key);
 			});

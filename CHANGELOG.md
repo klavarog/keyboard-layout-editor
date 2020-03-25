@@ -1,4 +1,4 @@
-___Version 0.15+klavarog patches:___ Mar 23, 2020
+___Version 0.16:___ Mar 23, 2020
 * Raw data is not updated automatically now because it used to slow down everything.
 
 ___Version 0.15:___ Aug 4, 2015
